@@ -1,12 +1,21 @@
-## ThreeTierAppChallenge
+# Three-Tier Web Application Deployment on AWS EKS
 
-## Overview
-This repository hosts the `#TWSThreeTierAppChallenge` for the TWS community. 
-The challenge involves deploying a Three-Tier Web Application using ReactJS, NodeJS, and MongoDB, with deployment on AWS EKS. Participants are encouraged to deploy the application, add creative enhancements, and submit a Pull Request (PR). Merged PRs will earn exciting prizes!
+## 🚀 Project Overview
 
-## Prerequisites
-- Basic knowledge of Docker, and AWS services.
-- An AWS account with necessary permissions.
+This project demonstrates a complete deployment of a Three-Tier Web Application using modern DevOps practices, containerization, and cloud infrastructure. The application is built with React.js (Frontend), Node.js (Backend), and MongoDB (Database), and deployed on AWS Elastic Kubernetes Service (EKS).
+
+
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React JS
+- **Backend:** Node JS
+- **Database:** MongoDB
+- **Containerization:** Docker
+- **Orchestration:** Kubernetes
+- **Cloud Provider:** AWS
+- **Container Registry:** AWS ECR
+
 
 ## Challenge Steps
 - [Application Code](#application-code)
@@ -27,13 +36,6 @@ Explore the `Jenkins-Server-TF` directory to find Terraform scripts for setting 
 ## Kubernetes Manifests Files
 The `Kubernetes-Manifests-Files` directory holds Kubernetes manifests for deploying your application on AWS EKS. Understand and customize these files to suit your project needs.
 
-## Project Details
-🛠️ **Tools Explored:**
-- Terraform & AWS CLI for AWS infrastructure
-- Jenkins, Sonarqube, Terraform, Kubectl, and more for CI/CD setup
-- Helm, Prometheus, and Grafana for Monitoring
-- ArgoCD for GitOps practices
-
 🚢 **High-Level Overview:**
 - IAM User setup & Terraform magic on AWS
 - Jenkins deployment with AWS integration
@@ -42,10 +44,72 @@ The `Kubernetes-Manifests-Files` directory holds Kubernetes manifests for deploy
 - Helm charts for efficient monitoring setup
 - GitOps with ArgoCD - the cherry on top!
 
-📈 **The journey covered everything from setting up tools to deploying a Three-Tier app, ensuring data persistence, and implementing CI/CD pipelines.**
+## 📋 Project Architecture
 
-## Getting Started
-To get started with this project, refer to our [comprehensive guide](https://amanpathakdevops.medium.com/advanced-end-to-end-devsecops-kubernetes-three-tier-project-using-aws-eks-argocd-prometheus-fbbfdb956d1a) that walks you through IAM user setup, infrastructure provisioning, CI/CD pipeline configuration, EKS cluster creation, and more.
+```mermaid
+graph TD
+    A[User] --> B[Frontend - React JS]
+    B --> C[Backend - Node JS]
+    C --> D[Database - MongoDB]
+    B --> E[AWS Load Balancer]
+    C --> E
+    E --> F[AWS EKS Cluster]
+```
+
+## 🚢 Deployment Steps
+
+### 1. IAM Configuration
+- Create IAM user `eks-admin` with AdministratorAccess
+- Generate Security Credentials (Access Key and Secret Access Key)
+
+### 2. Development Environment Setup
+1. Launch Ubuntu EC2 instance
+2. Install required tools:
+   ```bash
+   # AWS CLI
+   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   sudo apt install unzip
+   unzip awscliv2.zip
+   sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
+   
+   # Docker
+   sudo apt-get update
+   sudo apt install docker.io
+   sudo chown $USER /var/run/docker.sock
+
+   # kubectl
+   curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+   chmod +x ./kubectl
+   sudo mv ./kubectl /usr/local/bin
+
+   # eksctl
+   curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+   sudo mv /tmp/eksctl /usr/local/bin
+   ```
+
+### 3. Container Creation
+1. Create Dockerfiles for Frontend and Backend
+2. Build Docker images
+3. Push images to AWS ECR
+
+### 4. Kubernetes Deployment
+1. Create EKS Cluster
+   ```bash
+   eksctl create cluster --name three-tier-cluster --region us-west-2 --node-type t2.medium --nodes-min 2 --nodes-max 2
+   ```
+
+2. Create Kubernetes Manifests
+   - Secrets for MongoDB credentials
+   - Deployment files for Frontend, Backend, and MongoDB
+   - Service definitions for internal communication
+
+3. Apply Kubernetes Manifests
+   ```bash
+   kubectl create namespace workshop
+   kubectl apply -f mongodb/
+   kubectl apply -f backend/
+   kubectl apply -f frontend/
+   ```
 
 ### Step 1: IAM Configuration
 - Create a user `eks-admin` with `AdministratorAccess`.
@@ -125,17 +189,51 @@ kubectl apply -f full_stack_lb.yaml
 eksctl delete cluster --name three-tier-cluster --region us-west-2
 ```
 
-## Contribution Guidelines
-- Fork the repository and create your feature branch.
-- Deploy the application, adding your creative enhancements.
-- Ensure your code adheres to the project's style and contribution guidelines.
-- Submit a Pull Request with a detailed description of your changes.
+### 5. Load Balancing and Routing
+1. Install AWS Load Balancer Controller
+2. Configure Ingress for routing traffic
 
-## Rewards
-- Successful PR merges will be eligible for exciting prizes!
+## 🔍 Key Configurations
 
-## Support
-For any queries or issues, please open an issue in the repository.
+### MongoDB Deployment
+- Uses official MongoDB image
+- Secured with Kubernetes Secrets
+- ClusterIP service for internal access
 
----
-Happy Learning! 🚀👨‍💻👩‍💻
+### Backend Configuration
+- Environment variables for MongoDB connection
+- Liveness and Readiness probes
+- Rolling update strategy
+
+### Frontend Configuration
+- Uses ECR image
+- Configurable backend URL
+
+## 🛡️ Security Considerations
+- IAM roles with least privilege
+- Kubernetes network policies
+- Secrets management
+- Secure ECR repositories
+
+## 🚀 Getting Started
+
+1. Clone the repository
+2. Configure AWS credentials
+3. Follow deployment steps
+4. Access the application via generated load balancer URL
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+
+## 🙌 Acknowledgments
+
+- Inspiration from DevOps community
+- Open-source tools and technologies
+
+## 🎉 Happy Deploying!
